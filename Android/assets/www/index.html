@@ -1,0 +1,696 @@
+<!DOCTYPE HTML>
+<html>
+  <head>
+    <meta name="viewport" content="width=320; user-scalable=no" />
+    <meta http-equiv="Content-type" content="text/html; charset=utf-8">
+    <title>PhoneGap</title>
+      <link rel="stylesheet" href="master.css" type="text/css" media="screen" title="no title" charset="utf-8">
+      <script type="text/javascript" charset="utf-8" src="phonegap.js"></script>
+      <script type="text/javascript" charset="utf-8">
+
+    function roundNumber(num) {
+      var dec = 3;
+      var result = Math.round(num*Math.pow(10,dec))/Math.pow(10,dec);
+      return result;
+    }
+
+	//-------------------------------------------------------------------------
+	// Device Info
+	//-------------------------------------------------------------------------
+    var deviceInfo = function(){
+      	document.getElementById("platform").innerHTML = device.platform;
+      	document.getElementById("version").innerHTML = device.version;
+      	document.getElementById("uuid").innerHTML = device.uuid;
+    };
+
+	//-------------------------------------------------------------------------
+	// Acceleration
+	//-------------------------------------------------------------------------
+	var watchAccelId = null;
+
+	/**
+	 * Start watching acceleration
+	 */
+    var watchAccel = function() {
+        console.log("watchAccel()");
+
+		// Success callback
+        var success = function(a){
+            document.getElementById('x').innerHTML = roundNumber(a.x);
+            document.getElementById('y').innerHTML = roundNumber(a.y);
+            document.getElementById('z').innerHTML = roundNumber(a.z);
+            console.log("watchAccel success callback");
+        };
+
+		// Fail callback
+        var fail = function(e){
+            console.log("watchAccel fail callback with error code "+e);
+			stopAccel();
+        };
+
+		// Update acceleration every 1 sec
+        var opt = {};
+        opt.frequency = 1000;
+        watchAccelId = navigator.accelerometer.watchAcceleration(success, fail, opt);
+
+		setAccelStatus(true);
+    };
+
+    /**
+     * Stop watching the acceleration
+	 */
+    var stopAccel = function() {
+		setAccelStatus(false);
+        if (watchAccelId) {
+            navigator.accelerometer.clearWatch(watchAccelId);
+            watchAccelId = null;
+        }
+    };
+
+	/**
+	 * Get current acceleration
+	 */
+    var getAccel = function() {
+        console.log("getAccel()");
+
+		// Stop accel if running
+		stopAccel();
+
+		// Success callback
+        var success = function(a){
+            document.getElementById('x').innerHTML = roundNumber(a.x);
+            document.getElementById('y').innerHTML = roundNumber(a.y);
+            document.getElementById('z').innerHTML = roundNumber(a.z);
+        };
+
+		// Fail callback
+        var fail = function(e){
+            console.log("getAccel fail callback with error code "+e);
+        };
+
+		// Make call
+        var opt = {};
+        navigator.accelerometer.getCurrentAcceleration(success, fail, opt);
+    };
+
+	/**
+	 * Set accelerometer status
+	 */
+	var setAccelStatus = function(status) {
+		document.getElementById('accel_status').innerHTML = (status ? "Running" : "Stopped");
+	};
+
+	//-------------------------------------------------------------------------
+	// Compass
+	//-------------------------------------------------------------------------
+	var watchCompassId = null;
+
+	/**
+	 * Start watching compass
+	 */
+    var watchCompass = function() {
+        console.log("watchCompass()");
+
+		// Success callback
+        var success = function(a){
+            document.getElementById('compassHeading').innerHTML = roundNumber(a);
+        };
+
+		// Fail callback
+        var fail = function(e){
+            console.log("watchCompass fail callback with error code "+e);
+			stopCompass();
+        };
+
+		// Update heading every 1 sec
+        var opt = {};
+        opt.frequency = 1000;
+        watchCompassId = navigator.compass.watchHeading(success, fail, opt);
+
+		setCompassStatus(true);
+    };
+
+    /**
+     * Stop watching the acceleration
+	 */
+    var stopCompass = function() {
+		setCompassStatus(false);
+        if (watchCompassId) {
+            navigator.compass.clearWatch(watchCompassId);
+            watchCompassId = null;
+        }
+    };
+
+	/**
+	 * Get current compass
+	 */
+    var getCompass = function() {
+        console.log("getCompass()");
+
+		// Stop compass if running
+		stopCompass();
+
+		// Success callback
+        var success = function(a){
+            document.getElementById('compassHeading').innerHTML = roundNumber(a);
+        };
+
+		// Fail callback
+        var fail = function(e){
+            console.log("getCompass fail callback with error code "+e);
+        };
+
+		// Make call
+        var opt = {};
+        navigator.compass.getCurrentHeading(success, fail, opt);
+    };
+
+	/**
+	 * Set compass status
+	 */
+	var setCompassStatus = function(status) {
+		document.getElementById('compass_status').innerHTML = (status ? "Running" : "Stopped");
+	};
+
+	//-------------------------------------------------------------------------
+	// Location
+	//-------------------------------------------------------------------------
+	var watchLocationId = null;
+
+	/**
+	 * Start watching location
+	 */
+    var watchLocation = function() {
+        console.log("watchLocation()");
+
+		// Success callback
+        var success = function(p){
+            document.getElementById('latitude').innerHTML = p.coords.latitude;
+            document.getElementById('longitude').innerHTML = p.coords.longitude;
+        };
+
+		// Fail callback
+        var fail = function(e){
+            console.log("watchLocation fail callback with error code "+e);
+			stopLocation();
+        };
+
+		// Get location
+      	navigator.geolocation.getCurrentPosition(success, fail);
+		setLocationStatus("Running");
+    };
+
+    /**
+     * Stop watching the location
+	 */
+    var stopLocation = function() {
+		setLocationStatus("Stopped");
+        if (watchLocationId) {
+            navigator.geolocation.clearWatch(watchLocationId);
+            watchLocationId = null;
+        }
+    };
+
+	/**
+	 * Get current location
+	 */
+    var getLocation = function() {
+        console.log("getLocation()");
+
+		// Stop location if running
+		stopLocation();
+
+		// Success callback
+        var success = function(p){
+            document.getElementById('latitude').innerHTML = p.coords.latitude;
+            document.getElementById('longitude').innerHTML = p.coords.longitude;
+			setLocationStatus("Done");
+	    };
+
+		// Fail callback
+        var fail = function(e){
+            console.log("getLocation fail callback with error code "+e);
+        };
+
+		// Get location
+      	navigator.geolocation.getCurrentPosition(success, fail);
+		setLocationStatus("Retrieving location...");
+
+    };
+
+	/**
+	 * Set location status
+	 */
+	var setLocationStatus = function(status) {
+		document.getElementById('location_status').innerHTML = status;
+	};
+
+	//-------------------------------------------------------------------------
+	// Network
+	//-------------------------------------------------------------------------
+
+	/**
+	 * Check network status
+	 */
+	 var isReachable = function() {
+		navigator.network.isReachable("phonegap.com",
+
+			// Success callback
+			function(reachability) {
+				// There is no consistency on the format of reachability
+				var networkState = reachability.internetConnectionStatus || reachability.code || reachability;
+
+				var states = {};
+				states[NetworkStatus.NOT_REACHABLE]                      = 'No network connection';
+				states[NetworkStatus.REACHABLE_VIA_CARRIER_DATA_NETWORK] = 'Carrier data connection';
+				states[NetworkStatus.REACHABLE_VIA_WIFI_NETWORK]         = 'WiFi connection';
+
+				document.getElementById('reachable_status').innerHTML = states[networkState];
+			},
+
+			// Fail callback
+			function(e) {
+				document.getElementById('reachable_status').innerHTML = "Error: " + e;
+			});
+
+		document.getElementById('reachable_status').innerHTML = "Retrieving...";
+	};
+
+	//-------------------------------------------------------------------------
+	// Notifications
+	//-------------------------------------------------------------------------
+
+    var beep = function(){
+        navigator.notification.beep(2);
+    };
+
+    var vibrate = function(){
+      navigator.notification.vibrate(0);
+    };
+
+    var getContact = function(){
+      var suc = function(c){ alert("Contact 4: " + c.contacts[3].name); };
+        var fail = function(){};
+        navigator.ContactManager.get(suc, fail);
+    };
+
+	//-------------------------------------------------------------------------
+	// Camera
+	//-------------------------------------------------------------------------
+
+	/**
+	 * Capture picture
+	 */
+    function getPicture() {
+      	navigator.camera.getPicture(
+    		function(data) {
+      			var img = document.getElementById('camera_image');
+      			img.style.visibility = "visible";
+				img.style.display = "block";
+      			img.src = "data:image/jpeg;base64," + data;
+				document.getElementById('camera_status').innerHTML = "Success";
+   			},
+      		function(e) {
+				console.log("Error getting picture: " + e);
+				document.getElementById('camera_status').innerHTML = "Error getting picture.";
+      		},
+      		{ quality: 50 });
+    };
+
+	//-------------------------------------------------------------------------
+	// Contacts
+	//-------------------------------------------------------------------------
+
+    function getContacts() {
+        navigator.contacts.find(
+			{name: ""},
+        	function(contacts) {
+				var s = "";
+				if (contacts.length == 0) {
+					s = "No contacts found";
+				}
+				else {
+					s = "<table width='100%'><tr><th>Name</th><td>Phone</td><td>Email</td></tr>";
+					for (var i=0; i<contacts.length; i++) {
+						var contact = contacts[i];
+						s = s + "<tr><td>" + contact.name.formatted + "</td><td>";
+						if (contact.phones.length > 0) {
+							s = s + contact.phones[0].number;
+						}
+						s = s + "</td><td>"
+						if (contact.emails.length > 0) {
+							s = s + contact.emails[0].address;
+						}
+						s = s + "</td></tr>";
+					}
+					s = s + "</table>";
+				}
+				document.getElementById('contacts_results').innerHTML = s;
+        	},
+        	function(e) {
+				document.getElementById('contacts_results').innerHTML = "Error: "+e;
+        	});
+    };
+
+	//-------------------------------------------------------------------------
+	// Audio player
+	//-------------------------------------------------------------------------
+    var media1 = null;
+    var media1Timer = null;
+	var audioSrc = null;
+
+	/**
+	 * Play audio
+	 */
+    function playAudio(url) {
+        console.log("playAudio()");
+        console.log(" -- media="+media1);
+
+		//var src = "http://neuga.s3.amazonaws.com/onclassical/strings-organ.mp3";
+		var src = "http://audio.ibeat.org/content/p1rj1s/p1rj1s_-_rockGuitar.mp3";
+		if (url) {
+			src = url;
+		}
+
+		// Stop playing if src is different from currently playing source
+		if (src != audioSrc) {
+			if (media1 != null) {
+				stopAudio();
+				media1 = null;
+			}
+		}
+
+        if (media1 == null) {
+
+
+        	// TEST STREAMING AUDIO PLAYBACK
+        	//var src = "http://nunzioweb.com/misc/Bon_Jovi-Crush_Mystery_Train.mp3";   // works
+        	//var src = "http://nunzioweb.com/misc/Bon_Jovi-Crush_Mystery_Train.m3u"; // doesn't work
+        	//var src = "http://www.wav-sounds.com/cartoon/bugsbunny1.wav"; // works
+        	//var src = "http://www.angelfire.com/fl5/html-tutorial/a/couldyou.mid"; // doesn't work
+        	//var src = "MusicSearch/mp3/train.mp3";    // works
+        	//var src = "bryce.mp3";  // works
+        	//var src = "/android_asset/www/bryce.mp3"; // works
+
+        	media1 = new Media(src,
+                function() {
+                    console.log("playAudio():Audio Success");
+                },
+                function(err) {
+                    console.log("playAudio():Audio Error: "+err);
+					setAudioStatus("Error: " + err);
+                },
+                function(status) {
+                    console.log("playAudio():Audio Status: "+status);
+					setAudioStatus(Media.MEDIA_MSG[status]);
+
+					// If stopped, then stop getting current position
+					if (Media.MEDIA_STOPPED == status) {
+						clearInterval(media1Timer);
+						media1Timer = null;
+					}
+                });
+        }
+		audioSrc = src;
+
+        // Play audio
+        media1.play();
+        if (media1Timer == null) {
+            media1Timer = setInterval(
+                function() {
+                    media1.getCurrentPosition(
+                        function(position) {
+                            console.log("Pos="+position);
+							if (position > -1) {
+								setAudioPosition((position/1000)+" sec");
+							}
+                        },
+                        function(e) {
+                            console.log("Error getting pos="+e);
+							setAudioPosition("Error: "+e);
+                        }
+                    );
+                },
+                1000
+            );
+        }
+
+		// Get duration
+		var counter = 0;
+		var timerDur = setInterval(
+			function() {
+				counter = counter + 100;
+				if (counter > 2000) {
+					clearInterval(timerDur);
+				}
+				var dur = media1.getDuration();
+				if (dur > 0) {
+					clearInterval(timerDur);
+					document.getElementById('audio_duration').innerHTML = (dur/1000) + " sec";
+				}
+			}, 100);
+    }
+
+	/**
+	 * Pause audio playback
+	 */
+    function pauseAudio() {
+        console.log("pauseAudio()");
+        if (media1) {
+            media1.pause();
+        }
+    }
+
+	/**
+	 * Stop audio
+	 */
+    function stopAudio() {
+        console.log("stopAudio()");
+        if (media1) {
+            media1.stop();
+        }
+        clearInterval(media1Timer);
+		media1Timer = null;
+    }
+
+	/**
+	 * Set audio status
+	 */
+	var setAudioStatus = function(status) {
+		document.getElementById('audio_status').innerHTML = status;
+	};
+
+	/**
+	 * Set audio position
+	 */
+	var setAudioPosition = function(position) {
+		document.getElementById('audio_position').innerHTML = position;
+	};
+
+	//-------------------------------------------------------------------------
+	// Audio recorder
+	//-------------------------------------------------------------------------
+    var mediaRec = null;
+	var recTime = 0;
+
+	/**
+	 * Record audio
+	 */
+    function recordAudio() {
+        console.log("recordAudio()");
+        console.log(" -- media="+mediaRec);
+        if (mediaRec == null) {
+
+			var src = "myrecording.mp3";
+			mediaRec = new Media(src,
+					function() {
+						console.log("recordAudio():Audio Success");
+					},
+					function(err) {
+						console.log("recordAudio():Audio Error: "+err);
+						setAudioStatus("Error: " + err);
+					},
+					function(status) {
+						console.log("recordAudio():Audio Status: "+status);
+						setAudioStatus(Media.MEDIA_MSG[status]);
+					}
+				);
+        }
+
+		navigator.notification.beep(1);
+
+        // Record audio
+        mediaRec.startRecord();
+
+        // Stop recording after 10 sec
+		recTime = 0;
+        var recInterval = setInterval(function() {
+			recTime = recTime + 1;
+			setAudioPosition(recTime+" sec");
+			if (recTime >= 10) {
+				clearInterval(recInterval);
+            	mediaRec.stopRecord();
+            	console.log("recordAudio(): stop");
+   				navigator.notification.beep(1);
+			}
+        }, 1000);
+    }
+
+	/**
+	 * Play back recorded audio
+	 */
+	function playRecording() {
+		playAudio("myrecording.mp3");
+	}
+
+
+	//-------------------------------------------------------------------------
+	// Lifecycle
+	//-------------------------------------------------------------------------
+
+	/**
+	 * Function called when page has finished loading.
+	 */
+    function init() {
+        console.log("init()");
+        document.addEventListener("deviceready", deviceInfo, false);
+        document.addEventListener("resume", doResume, false);
+        document.addEventListener("pause", doPause, false);
+    }
+
+	/**
+	 * Function called when page is being unloaded.
+	 */
+    function unload() {
+        console.log("unload()");
+    }
+
+	/**
+	 * Function called when app is resuming.
+	 */
+    function doResume() {
+        console.log("resume()");
+    }
+
+	/**
+	 * Function called when app is pausing.
+	 */
+    function doPause() {
+        console.log("pause()");
+    }
+
+  </script>
+  </head>
+  <body onload="init();" onunload="unload();" id="stage" class="theme">
+    <h1>PhoneGap Demo</h1>
+
+	<!-- Device Info -->
+    <div id="info">
+    	<h2>Device Info</h2>
+		<table width="100%">
+		<tr><td><b>Platform:</b></td><td id="platform">&nbsp;</td></tr>
+      	<tr><td><b>Version:</b></td><td id="version">&nbsp;</td></tr>
+      	<tr><td><b>UUID:</b></td><td id="uuid">&nbsp;</td></tr>
+		</table>
+	</div>
+
+	<!-- Acceleration -->
+	<div id="info">
+		<h2>Acceleration</h2>
+		<b>Status:</b> <span id="accel_status">Stopped</span>
+		<table width="100%"><tr>
+      		<td width="33%">X: <span id="x">&nbsp;</td>
+      		<td width="33%">Y: <span id="y">&nbsp;</td>
+      		<td>Z: <span id="z">&nbsp;</td>
+    	</tr></table>
+	</div>
+    <a href="#" class="btn large" onclick="getAccel();">Get Accelerometer</a>
+    <a href="#" class="btn large" onclick="watchAccel();">Start Watching Accelerometer</a>
+    <a href="#" class="btn large" onclick="stopAccel();">Stop Watching Accelerometer</a>
+
+	<!-- Compass -->
+	<div id="info">
+		<h2>Compass</h2>
+		<b>Status:</b> <span id="compass_status">Stopped</span>
+		<table width="100%"><tr>
+      		<td width="33%">Heading: <span id="compassHeading">&nbsp;</td>
+    	</tr></table>
+	</div>
+    <a href="#" class="btn large" onclick="getCompass();">Get Compass</a>
+    <a href="#" class="btn large" onclick="watchCompass();">Start Watching Compass</a>
+    <a href="#" class="btn large" onclick="stopCompass();">Stop Watching Compass</a>
+
+	<!-- Location -->
+	<div id="info">
+		<h2>Location</h2>
+		<b>Status:</b> <span id="location_status">Stopped</span>
+		<table width="100%">
+      		<tr><td><b>Latitude:</b></td><td id="latitude">&nbsp;</td></tr>
+      		<tr><td><b>Longitude:</b></td><td id="longitude">&nbsp;</td></tr>
+    	</table>
+	</div>
+    <a href="#" class="btn large" onclick="getLocation();">Get Location</a>
+    <a href="#" class="btn large" onclick="watchLocation();">Start Watching Location</a>
+    <a href="#" class="btn large" onclick="stopLocation();">Stop Watching Location</a>
+	<div>
+
+	<!-- Network -->
+	<div id="info">
+		<h2>Network</h2>
+		<b>isReachable:</b> <span id="reachable_status">Press button to check</span><br>
+	</div>
+    <a href="#" class="btn large" onclick="isReachable();">Call isReachable</a>
+
+	<!-- Display other content -->
+	<div id="info">
+		<h2>Display Other Content</h2>
+	</div>
+    <a href="tel:411" class="btn large">Call 411</a>
+    <a href="geo:0,0?q=11400 Burnet Rd, Austin, TX" class="btn large">Map IBM</a>
+    <a href="mailto:bryce@curtiscountry.com" class="btn large">Send Mail</a>
+    <a href="sms:5126352414" class="btn large">Send SMS</a>
+    <a href="http://www.google.com" class="btn large">Load Web Site</a>
+    <a href="http://handle.library.cornell.edu/control/authBasic/authTest/" class="btn large">Basic Auth: test/this</a>
+
+	<!-- Notifications -->
+	<div id="info">
+		<h2>Notifications and Dialogs</h2>
+	</div>
+    <a href="#" class="btn large" onclick="beep();">Beep</a>
+    <a href="#" class="btn large" onclick="vibrate();">Vibrate</a>
+    <a href="#" class="btn large" onclick="alert('You pressed alert.');">Alert Dialog</a>
+    <a href="#" class="btn large" onclick="confirm('You pressed confirm.');">Confirm Dialog</a>
+
+	<!-- Camera -->
+	<div id="info">
+		<h2>Camera</h2>
+		<b>Status:</b> <span id="camera_status"></span><br>
+  		<img style="width:60px;height:60px;visibility:hidden;display:none;" id="camera_image" src="" />
+	</div>
+    <a href="#" class="btn large" onclick="getPicture();">Take Picture</a>
+
+	<!-- Contacts -->
+	<div id="info">
+		<h2>Contacts</h2>
+		<b>Results:<b><br>
+		<span id="contacts_results">&nbsp;</span>
+	</div>
+    <a href="#" class="btn large" onclick="getContacts();">Get phone's contacts</a>
+
+	<!-- Audio -->
+	<div id="info">
+		<h2>Audio</h2>
+		<table width="100%">
+		<tr><td><b>Status:</b></td><td id="audio_status">Stopped</td></tr>
+		<tr><td><b>Duration:</b></td><td id="audio_duration"></td></tr>
+		<tr><td><b>Position:</b></td><td id="audio_position"></td></tr>
+		</table>
+	</div>
+    <a href="#" class="btn large" onclick="playAudio();">Play/Unpause Audio</a>
+    <a href="#" class="btn large" onclick="pauseAudio();">Pause Playing Audio</a>
+    <a href="#" class="btn large" onclick="stopAudio();">Stop Playing Audio</a>
+    <a href="#" class="btn large" onclick="recordAudio();">Record Audio for 10 sec</a>
+    <a href="#" class="btn large" onclick="playRecording();">Play/Unpause Recording</a>
+
+  </body>
+</html>
