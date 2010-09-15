@@ -21,6 +21,7 @@
       	document.getElementById("platform").innerHTML = device.platform;
       	document.getElementById("version").innerHTML = device.version;
       	document.getElementById("uuid").innerHTML = device.uuid;
+      	document.getElementById("phonegap_version").innerHTML = device.phonegap;
     };
 
 	//-------------------------------------------------------------------------
@@ -46,6 +47,7 @@
         var fail = function(e){
             console.log("watchAccel fail callback with error code "+e);
 			stopAccel();
+			setAccelStatus(Accelerometer.ERROR_MSG[e]);
         };
 
 		// Update acceleration every 1 sec
@@ -53,14 +55,14 @@
         opt.frequency = 1000;
         watchAccelId = navigator.accelerometer.watchAcceleration(success, fail, opt);
 
-		setAccelStatus(true);
+		setAccelStatus("Running");
     };
 
     /**
      * Stop watching the acceleration
 	 */
     var stopAccel = function() {
-		setAccelStatus(false);
+		setAccelStatus("Stopped");
         if (watchAccelId) {
             navigator.accelerometer.clearWatch(watchAccelId);
             watchAccelId = null;
@@ -86,6 +88,7 @@
 		// Fail callback
         var fail = function(e){
             console.log("getAccel fail callback with error code "+e);
+			setAccelStatus(Accelerometer.ERROR_MSG[e]);
         };
 
 		// Make call
@@ -97,7 +100,7 @@
 	 * Set accelerometer status
 	 */
 	var setAccelStatus = function(status) {
-		document.getElementById('accel_status').innerHTML = (status ? "Running" : "Stopped");
+		document.getElementById('accel_status').innerHTML = status;
 	};
 
 	//-------------------------------------------------------------------------
@@ -120,6 +123,7 @@
         var fail = function(e){
             console.log("watchCompass fail callback with error code "+e);
 			stopCompass();
+			setCompassStatus(Compass.ERROR_MSG[e]);
         };
 
 		// Update heading every 1 sec
@@ -127,14 +131,14 @@
         opt.frequency = 1000;
         watchCompassId = navigator.compass.watchHeading(success, fail, opt);
 
-		setCompassStatus(true);
+		setCompassStatus("Running");
     };
 
     /**
      * Stop watching the acceleration
 	 */
     var stopCompass = function() {
-		setCompassStatus(false);
+		setCompassStatus("Stopped");
         if (watchCompassId) {
             navigator.compass.clearWatch(watchCompassId);
             watchCompassId = null;
@@ -158,6 +162,7 @@
 		// Fail callback
         var fail = function(e){
             console.log("getCompass fail callback with error code "+e);
+			setCompassStatus(Compass.ERROR_MSG[e]);
         };
 
 		// Make call
@@ -169,7 +174,7 @@
 	 * Set compass status
 	 */
 	var setCompassStatus = function(status) {
-		document.getElementById('compass_status').innerHTML = (status ? "Running" : "Stopped");
+		document.getElementById('compass_status').innerHTML = status;
 	};
 
 	//-------------------------------------------------------------------------
@@ -281,17 +286,11 @@
 	//-------------------------------------------------------------------------
 
     var beep = function(){
-        navigator.notification.beep(2);
+        navigator.notification.beep(3);
     };
 
     var vibrate = function(){
       navigator.notification.vibrate(0);
-    };
-
-    var getContact = function(){
-      var suc = function(c){ alert("Contact 4: " + c.contacts[3].name); };
-        var fail = function(){};
-        navigator.ContactManager.get(suc, fail);
     };
 
 	//-------------------------------------------------------------------------
@@ -308,13 +307,14 @@
       			img.style.visibility = "visible";
 				img.style.display = "block";
       			img.src = "data:image/jpeg;base64," + data;
+				//img.src = data;
 				document.getElementById('camera_status').innerHTML = "Success";
    			},
       		function(e) {
 				console.log("Error getting picture: " + e);
 				document.getElementById('camera_status').innerHTML = "Error getting picture.";
       		},
-      		{ quality: 50 });
+      		{ quality: 50 /*, destinationType: DestinationType.FILE_URI */ });
     };
 
 	//-------------------------------------------------------------------------
@@ -591,6 +591,7 @@
 		<tr><td><b>Platform:</b></td><td id="platform">&nbsp;</td></tr>
       	<tr><td><b>Version:</b></td><td id="version">&nbsp;</td></tr>
       	<tr><td><b>UUID:</b></td><td id="uuid">&nbsp;</td></tr>
+      	<tr><td><b>PhoneGap:</b></td><td id="phonegap_version">&nbsp;</td></tr>
 		</table>
 	</div>
 
