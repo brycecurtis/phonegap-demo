@@ -306,15 +306,35 @@
       			var img = document.getElementById('camera_image');
       			img.style.visibility = "visible";
 				img.style.display = "block";
-      			img.src = "data:image/jpeg;base64," + data;
-				//img.src = data;
+      			//img.src = "data:image/jpeg;base64," + data;
+				img.src = data;
 				document.getElementById('camera_status').innerHTML = "Success";
    			},
       		function(e) {
 				console.log("Error getting picture: " + e);
 				document.getElementById('camera_status').innerHTML = "Error getting picture.";
       		},
-      		{ quality: 50 /*, destinationType: DestinationType.FILE_URI */ });
+      		{ quality: 50, destinationType: Camera.DestinationType.FILE_URI});
+    };
+
+	/**
+	 * Select image from library
+	 */
+    function getImage() {
+      	navigator.camera.getPicture(
+    		function(data) {
+      			var img = document.getElementById('camera_image');
+      			img.style.visibility = "visible";
+				img.style.display = "block";
+      			//img.src = "data:image/jpeg;base64," + data;
+				img.src = data;
+				document.getElementById('camera_status').innerHTML = "Success";
+   			},
+      		function(e) {
+				console.log("Error getting picture: " + e);
+				document.getElementById('camera_status').innerHTML = "Error getting picture.";
+      		},
+      		{ quality: 50, destinationType: Camera.DestinationType.FILE_URI, sourceType: Camera.PictureSourceType.PHOTOLIBRARY});
     };
 
 	//-------------------------------------------------------------------------
@@ -669,6 +689,7 @@
   		<img style="width:60px;height:60px;visibility:hidden;display:none;" id="camera_image" src="" />
 	</div>
     <a href="#" class="btn large" onclick="getPicture();">Take Picture</a>
+    <a href="#" class="btn large" onclick="getImage();">Select Image from Library</a>
 
 	<!-- Contacts -->
 	<div id="info">
