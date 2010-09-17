@@ -17,12 +17,12 @@
 	//-------------------------------------------------------------------------
 	// Device Info
 	//-------------------------------------------------------------------------
-    var deviceInfo = function(){
+    var deviceInfo = function() {
       	document.getElementById("platform").innerHTML = device.platform;
       	document.getElementById("version").innerHTML = device.version;
       	document.getElementById("uuid").innerHTML = device.uuid;
       	document.getElementById("phonegap_version").innerHTML = device.phonegap;
-    };
+	};
 
 	//-------------------------------------------------------------------------
 	// Acceleration
@@ -563,6 +563,125 @@
 		playAudio("myrecording.mp3");
 	}
 
+	//-------------------------------------------------------------------------
+	// File Tests
+	//-------------------------------------------------------------------------
+
+	var fileTests = function() {
+
+		fileTestsOutput("<hr>testSaveLocationExists");
+		navigator.fileMgr.testSaveLocationExists(
+			function(r) {
+				fileTestsOutput("- testSaveLocationExists: Passed ("+r+")");
+			},
+			function(e) {
+				fileTestsOutput("- testSaveLocationExists: Failed ("+e+")");
+			});
+
+		fileTestsOutput("<hr>getFreeDiskSpace");
+		navigator.fileMgr.getFreeDiskSpace(
+			function(r) {
+				fileTestsOutput("- getFreeDiskSpace: Passed ("+r+")");
+			},
+			function(e) {
+				fileTestsOutput("- getFreeDiskSpace: Failed ("+e+")");
+			});
+
+		writer = new FileWriter();
+		writer.oncomplete = function(evt) {
+				fileTestsOutput("<hr>writeAsText(sdcard/gapTemp.txt)");
+				fileTestsOutput("- writeAsText: Passed ("+evt.target.result+")");
+
+				var reader = new FileReader();
+				reader.onload = function(evt) {
+						fileTestsOutput("<hr>readAsText(sdcard/gapTemp.txt)");
+						fileTestsOutput("- readAsText: Passed ("+evt.target.result+")");
+					};
+				reader.onerror = function(evt) {
+						fileTestsOutput("<hr>readAsText(sdcard/gapTemp.txt)");
+						fileTestsOutput("- readAsText: Error ("+evt.target.error+")");
+					};
+				reader.readAsText("sdcard/gapTemp.txt");
+
+				var reader2 = new FileReader();
+				reader2.onload = function(evt) {
+						fileTestsOutput("<hr>readAsDataURL(sdcard/gapTemp.txt)");
+						fileTestsOutput("- readAsDataURL: Passed<br> ("+evt.target.result+")");
+					};
+				reader2.onerror = function(evt) {
+						fileTestsOutput("<hr>readAsDataURL(sdcard/gapTemp.txt)");
+						fileTestsOutput("- readAsDataURL: Error ("+evt.target.error+")");
+					};
+				reader2.readAsDataURL("sdcard/gapTemp.txt");
+
+			};
+		writer.onerror = function(e) {
+				fileTestsOutput("<hr>writeAsText(sdcard/gapTemp.txt)");
+				fileTestsOutput("- writeAsText: Error ("+e+")");
+			};
+		writer.writeAsText("sdcard/gapTemp.txt", "This is a test of PhoneGap FileWriter at "+(new Date())+".", false);
+
+		fileTestsOutput("<hr>testFileExists(Pic.jpg)");
+		navigator.fileMgr.testFileExists("Pic.jpg",
+			function(r) {
+				fileTestsOutput("- testFileExists: Passed ("+r+")");
+			},
+			function(e) {
+				fileTestsOutput("- testFileExists: Error ("+e+")");
+			});
+
+		fileTestsOutput("<hr>testDirectoryExists(download)");
+		navigator.fileMgr.testDirectoryExists("download",
+			function(r) {
+				fileTestsOutput("- testDirectoryExists: Passed ("+r+")");
+			},
+			function(e) {
+				fileTestsOutput("- testDirectoryExists: Error ("+e+")");
+			});
+
+		fileTestsOutput("<hr>createDirectory(gap123)");
+		navigator.fileMgr.createDirectory("gap123",
+			function(r) {
+				fileTestsOutput("- createDirectory: Passed ("+r+")");
+			},
+			function(e) {
+				fileTestsOutput("- createDirectory: Error ("+e+")");
+			});
+
+		fileTestsOutput("<hr>testDirectoryExists(gap123)");
+		navigator.fileMgr.testDirectoryExists("gap123",
+			function(r) {
+				fileTestsOutput("- testDirectoryExists: Passed ("+r+")");
+			},
+			function(e) {
+				fileTestsOutput("- testDirectoryExists: Error ("+e+")");
+			});
+
+		fileTestsOutput("<hr>deleteDirectory(gap123)");
+		navigator.fileMgr.deleteDirectory("gap123",
+			function(r) {
+				fileTestsOutput("- deleteDirectory: Passed ("+r+")");
+			},
+			function(e) {
+				fileTestsOutput("- deleteDirectory: Error ("+e+")");
+			});
+
+		fileTestsOutput("<hr>testDirectoryExists(gap123)");
+		navigator.fileMgr.testDirectoryExists("gap123",
+			function(r) {
+				fileTestsOutput("- testDirectoryExists: Passed ("+r+")");
+			},
+			function(e) {
+				fileTestsOutput("- testDirectoryExists: Error ("+e+")");
+			});
+
+		//fileTestsOutput("DONE");
+    };
+
+	var fileTestsOutput = function(s) {
+		var el = document.getElementById("file_results");
+		el.innerHTML = el.innerHTML + s + "<br>";
+	};
 
 	//-------------------------------------------------------------------------
 	// Lifecycle
@@ -713,6 +832,14 @@
     <a href="#" class="btn large" onclick="stopAudio();">Stop Playing Audio</a>
     <a href="#" class="btn large" onclick="recordAudio();">Record Audio for 10 sec</a>
     <a href="#" class="btn large" onclick="playRecording();">Play/Unpause Recording</a>
+
+	<!-- File -->
+	<div id="info">
+		<h2>File</h2>
+		<b>Results:<b><br>
+		<span id="file_results">&nbsp;</span>
+	</div>
+    <a href="#" class="btn large" onclick="fileTests();">Read and Write Files</a>
 
   </body>
 </html>
