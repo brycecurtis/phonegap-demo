@@ -22,6 +22,10 @@
       	document.getElementById("version").innerHTML = device.version;
       	document.getElementById("uuid").innerHTML = device.uuid;
       	document.getElementById("phonegap_version").innerHTML = device.phonegap;
+
+		// Use PhoneGap's Geolocation instead of built-in
+		// This can be used for the Android emulator or commented out when running on phone.
+		//Geolocation.usePhoneGap();
 	};
 
 	//-------------------------------------------------------------------------
@@ -201,7 +205,7 @@
         };
 
 		// Get location
-      	navigator.geolocation.getCurrentPosition(success, fail);
+      	watchLocationId = navigator.geolocation.watchPosition(success, fail);
 		setLocationStatus("Running");
     };
 
@@ -234,7 +238,8 @@
 
 		// Fail callback
         var fail = function(e){
-            console.log("getLocation fail callback with error code "+e);
+            console.log("getLocation fail callback with error code "+e.code);
+			setLocationStatus("Error: "+e.code);
         };
 
 		// Get location
