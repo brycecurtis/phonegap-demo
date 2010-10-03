@@ -205,7 +205,7 @@
         };
 
 		// Get location
-      	watchLocationId = navigator.geolocation.watchPosition(success, fail);
+      	watchLocationId = navigator.geolocation.watchPosition(success, fail, {enableHighAccuracy: true});
 		setLocationStatus("Running");
     };
 
@@ -243,7 +243,7 @@
         };
 
 		// Get location
-      	navigator.geolocation.getCurrentPosition(success, fail);
+      	navigator.geolocation.getCurrentPosition(success, fail, {enableHighAccuracy: true}); //, {timeout: 10000});
 		setLocationStatus("Retrieving location...");
 
     };
@@ -689,6 +689,43 @@
 	};
 
 	//-------------------------------------------------------------------------
+	// Service
+	//-------------------------------------------------------------------------
+
+	/**
+ 	 * Hello service class provides access to Hello service.
+ 	 */
+	function Hello() {
+	}
+
+	/**
+ 	 * Call hello.
+ 	 *
+	 * @param {String} name					The name
+ 	 * @param {Function} successCallback    The function to call with the returned string.
+ 	 * @param {Function} errorCallback      The function to call when there is an error. (OPTIONAL)
+ 	 */
+	Hello.prototype.hello = function(name, successCallback, errorCallback) {
+    	PhoneGap.execAsync(successCallback, errorCallback, "Hello", "hello", [name]);
+	};
+
+	/**
+	 * Test the Hello service
+	 *
+	 * @param name
+	 */
+	var callHelloService = function(name) {
+		var hello = new Hello();
+		hello.hello(name,
+			function(msg) {
+				alert(msg);
+			},
+			function(e) {
+				alert(e);
+			});
+	};
+
+	//-------------------------------------------------------------------------
 	// Lifecycle
 	//-------------------------------------------------------------------------
 
@@ -845,6 +882,12 @@
 		<span id="file_results">&nbsp;</span>
 	</div>
     <a href="#" class="btn large" onclick="fileTests();">Read and Write Files</a>
+
+	<!-- Service -->
+	<div id="info">
+		<h2>Custom Services and Plugins</h2>
+	</div>
+    <a href="#" class="btn large" onclick="callHelloService('Mr. Smith');">Hello Service</a>
 
   </body>
 </html>
