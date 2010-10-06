@@ -6,6 +6,7 @@
     <title>PhoneGap</title>
       <link rel="stylesheet" href="master.css" type="text/css" media="screen" title="no title" charset="utf-8">
       <script type="text/javascript" charset="utf-8" src="phonegap.js"></script>
+      <script type="text/javascript" charset="utf-8" src="helloPlugin.js"></script>
       <script type="text/javascript" charset="utf-8">
 
     function roundNumber(num) {
@@ -347,24 +348,26 @@
 	//-------------------------------------------------------------------------
 
     function getContacts() {
-        navigator.contacts.find(
-			{name: ""},
+		obj = new ContactFindOptions();
+		obj.filter = "";
+		navigator.service.contacts.find(
+			["displayName", "name", "phoneNumbers", "emails", "urls", "note"],
         	function(contacts) {
 				var s = "";
 				if (contacts.length == 0) {
 					s = "No contacts found";
 				}
 				else {
-					s = "<table width='100%'><tr><th>Name</th><td>Phone</td><td>Email</td></tr>";
+					s = "Number of contacts: "+contacts.length+"<br><table width='100%'><tr><th>Name</th><td>Phone</td><td>Email</td></tr>";
 					for (var i=0; i<contacts.length; i++) {
 						var contact = contacts[i];
 						s = s + "<tr><td>" + contact.name.formatted + "</td><td>";
-						if (contact.phones.length > 0) {
-							s = s + contact.phones[0].number;
+						if (contact.phoneNumbers.length > 0) {
+							s = s + contact.phoneNumbers[0].value;
 						}
 						s = s + "</td><td>"
 						if (contact.emails.length > 0) {
-							s = s + contact.emails[0].address;
+							s = s + contact.emails[0].value;
 						}
 						s = s + "</td></tr>";
 					}
@@ -374,8 +377,9 @@
         	},
         	function(e) {
 				document.getElementById('contacts_results').innerHTML = "Error: "+e;
-        	});
-    };
+        	},
+			obj);
+	};
 
 	//-------------------------------------------------------------------------
 	// Audio player
@@ -693,29 +697,12 @@
 	//-------------------------------------------------------------------------
 
 	/**
- 	 * Hello service class provides access to Hello service.
- 	 */
-	function Hello() {
-	}
-
-	/**
- 	 * Call hello.
- 	 *
-	 * @param {String} name					The name
- 	 * @param {Function} successCallback    The function to call with the returned string.
- 	 * @param {Function} errorCallback      The function to call when there is an error. (OPTIONAL)
- 	 */
-	Hello.prototype.hello = function(name, successCallback, errorCallback) {
-    	PhoneGap.execAsync(successCallback, errorCallback, "Hello", "hello", [name]);
-	};
-
-	/**
 	 * Test the Hello service
 	 *
 	 * @param name
 	 */
 	var callHelloService = function(name) {
-		var hello = new Hello();
+		var hello = new HelloPlugin();
 		hello.hello(name,
 			function(msg) {
 				alert(msg);
@@ -723,6 +710,43 @@
 			function(e) {
 				alert(e);
 			});
+	};
+
+	//-------------------------------------------------------------------------
+	// HTML5 Database
+	//-------------------------------------------------------------------------
+
+	var callDatabase = function() {
+   		var db = openDatabase("Database", "1.0", "PhoneGap Demo", 200000);
+		if (db === null) {
+			databaseOutput("Database could not be opened.");
+			return;
+		}
+		databaseOutput("Database opened.");
+		db.transaction(function (tx) {
+			tx.executeSql('CREATE TABLE IF NOT EXISTS DEMO (id unique, text)');
+			tx.executeSql('INSERT INTO DEMO (id, text) VALUES (1, "First row")');
+			tx.executeSql('INSERT INTO DEMO (id, text) VALUES (2, "Second row")');
+			databaseOutput("Data written to DEMO table.");
+		});
+
+		db.transaction(function (tx) {
+	  		tx.executeSql('SELECT * FROM DEMO', [], function (tx, results) {
+   				var len = results.rows.length;
+   				var text = "DEMO table: " + len + " rows found.<br>";
+				text = text + "<table border='1'><tr><td>Row</td><td>Data</td></tr>";
+   				for (var i=0; i<len; i++){
+      				text = text + "<tr><td>" + i + "</td><td>" + results.rows.item(i).id + ", " + results.rows.item(i).text + "</td></tr>";
+				}
+				text = text + "</table>";
+				databaseOutput(text);
+   			}, null);
+		});
+	};
+
+	var databaseOutput = function(s) {
+		var el = document.getElementById("database_results");
+		el.innerHTML = el.innerHTML + s + "<br>";
 	};
 
 	//-------------------------------------------------------------------------
@@ -829,7 +853,7 @@
 	</div>
     <a href="tel:411" class="btn large">Call 411</a>
     <a href="geo:0,0?q=11400 Burnet Rd, Austin, TX" class="btn large">Map IBM</a>
-    <a href="mailto:bryce@curtiscountry.com" class="btn large">Send Mail</a>
+    <a href="mailto:me@abc.com?subject=My Subject&body=This is the body.%0D%0ANew line." class="btn large">Send Mail</a>
     <a href="sms:5126352414" class="btn large">Send SMS</a>
     <a href="http://www.google.com" class="btn large">Load Web Site</a>
     <a href="http://handle.library.cornell.edu/control/authBasic/authTest/" class="btn large">Basic Auth: test/this</a>
@@ -840,7 +864,7 @@
 	</div>
     <a href="#" class="btn large" onclick="beep();">Beep</a>
     <a href="#" class="btn large" onclick="vibrate();">Vibrate</a>
-    <a href="#" class="btn large" onclick="alert('You pressed alert.');">Alert Dialog</a>
+    <a href="#" class="btn large" onclick="navigator.notification.alert('You pressed alert.', 'Alert Dialog', 'Continue');">Alert Dialog</a>
     <a href="#" class="btn large" onclick="confirm('You pressed confirm.');">Confirm Dialog</a>
 
 	<!-- Camera -->
@@ -888,6 +912,14 @@
 		<h2>Custom Services and Plugins</h2>
 	</div>
     <a href="#" class="btn large" onclick="callHelloService('Mr. Smith');">Hello Service</a>
+
+	<!-- HTML5 Database -->
+	<div id="info">
+		<h2>HTML5 Database</h2>
+		<b>Results:<b><br>
+		<span id="database_results"></span>
+	</div>
+    <a href="#" class="btn large" onclick="callDatabase();">Database</a>
 
   </body>
 </html>
