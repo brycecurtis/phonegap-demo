@@ -299,6 +299,28 @@
       navigator.notification.vibrate(0);
     };
 
+	var spinner = function() {
+    	navigator.notification.activityStart();
+		setTimeout(function() { navigator.notification.activityStop(); }, 10000);
+	}
+
+	var progressInterval = null;
+	var progressValue = 0;
+	var progress = function() {
+    	navigator.notification.progressStart("Test", "Wait for it...");
+		progressInterval = setInterval(function() {
+			if (progressValue > 90) {
+				clearInterval(progressInterval);
+				navigator.notification.progressStop();
+				progressValue = 0;
+			}
+			else {
+				progressValue = progressValue + 10;
+				navigator.notification.progressValue(progressValue);
+			}
+		}, 1000);
+	}
+
 	//-------------------------------------------------------------------------
 	// Camera
 	//-------------------------------------------------------------------------
@@ -712,6 +734,39 @@
 			});
 	};
 
+	/**
+ 	 * Demo service class provides access to Demo service.
+ 	 */
+	function Demo() {
+	}
+
+	/**
+ 	 * Call echo.
+ 	 *
+	 * @param {String} text					The text to echo
+ 	 * @param {Function} successCallback    The function to call with the returned string.
+ 	 * @param {Function} errorCallback      The function to call when there is an error. (OPTIONAL)
+ 	 */
+	Demo.prototype.echo = function(text, successCallback, errorCallback) {
+    	PhoneGap.execAsync(successCallback, errorCallback, "Demo", "echo", [text]);
+	};
+
+	/**
+	 * Test the Demo service
+	 *
+	 * @param text
+	 */
+	var callDemoService = function(text) {
+		var demo = new Demo();
+		demo.echo(text,
+			function(msg) {
+				alert(msg);
+			},
+			function(e) {
+				alert(e);
+			});
+	};
+
 	//-------------------------------------------------------------------------
 	// HTML5 Database
 	//-------------------------------------------------------------------------
@@ -865,7 +920,9 @@
     <a href="#" class="btn large" onclick="beep();">Beep</a>
     <a href="#" class="btn large" onclick="vibrate();">Vibrate</a>
     <a href="#" class="btn large" onclick="navigator.notification.alert('You pressed alert.', 'Alert Dialog', 'Continue');">Alert Dialog</a>
-    <a href="#" class="btn large" onclick="confirm('You pressed confirm.');">Confirm Dialog</a>
+    <a href="#" class="btn large" onclick="alert(navigator.notification.confirm('You pressed confirm.', 'Confirm Dialog', 'Yes,No,Maybe'));">Confirm Dialog</a>
+    <a href="#" class="btn large" onclick="spinner();">Spinner Dialog</a>
+    <a href="#" class="btn large" onclick="progress();">Progress Dialog</a>
 
 	<!-- Camera -->
 	<div id="info">
@@ -912,6 +969,7 @@
 		<h2>Custom Services and Plugins</h2>
 	</div>
     <a href="#" class="btn large" onclick="callHelloService('Mr. Smith');">Hello Service</a>
+    <a href="#" class="btn large" onclick="callDemoService('Hello');">Echo Service</a>
 
 	<!-- HTML5 Database -->
 	<div id="info">
