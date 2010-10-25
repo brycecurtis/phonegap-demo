@@ -19,7 +19,7 @@ public class Demo extends DroidGap
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         super.appView.clearCache(true);
-        super.addService("Demo", "com.ibm.swgtc.demo.DemoPlugin");
+        //super.addService("Demo", "com.ibm.swgtc.demo.DemoPlugin");
         this.pluginManager.exec("Notification", "activityStart", null, "[\"Wait\",\"Loading Application...\"]", false);
         super.loadUrl("file:///android_asset/www/index.html");
     }

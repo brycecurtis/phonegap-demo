@@ -24,6 +24,8 @@
       	document.getElementById("uuid").innerHTML = device.uuid;
       	document.getElementById("phonegap_version").innerHTML = device.phonegap;
 
+        PluginManager.addService("Demo", "com.ibm.swgtc.demo.DemoPlugin");
+
 		// Use PhoneGap's Geolocation instead of built-in
 		// This can be used for the Android emulator or commented out when running on phone.
 		//Geolocation.usePhoneGap();
@@ -299,6 +301,25 @@
       navigator.notification.vibrate(0);
     };
 
+	var alertDialog = function(message, title, button) {
+		console.log("alertDialog()");
+		navigator.notification.alert(message,
+			function(){
+				console.log("Alert dismissed.");
+			},
+			title, button);
+		console.log("After alert");
+	};
+
+	var confirmDialog = function(message, title, buttons) {
+		navigator.notification.confirm(message,
+			function(r) {
+				console.log("You selected " + r);
+			},
+			title,
+			buttons);
+	};
+
 	var spinner = function() {
     	navigator.notification.activityStart();
 		setTimeout(function() { navigator.notification.activityStop(); }, 10000);
@@ -372,6 +393,8 @@
     function getContacts() {
 		obj = new ContactFindOptions();
 		obj.filter = "";
+		obj.multiple = true;
+		obj.limit = 1000;
 		navigator.service.contacts.find(
 			["displayName", "name", "phoneNumbers", "emails", "urls", "note"],
         	function(contacts) {
@@ -748,7 +771,7 @@
  	 * @param {Function} errorCallback      The function to call when there is an error. (OPTIONAL)
  	 */
 	Demo.prototype.echo = function(text, successCallback, errorCallback) {
-    	PhoneGap.execAsync(successCallback, errorCallback, "Demo", "echo", [text]);
+    	PhoneGap.exec(successCallback, errorCallback, "Demo", "echo", [text]);
 	};
 
 	/**
@@ -779,9 +802,10 @@
 		}
 		databaseOutput("Database opened.");
 		db.transaction(function (tx) {
-			tx.executeSql('CREATE TABLE IF NOT EXISTS DEMO (id unique, text)');
-			tx.executeSql('INSERT INTO DEMO (id, text) VALUES (1, "First row")');
-			tx.executeSql('INSERT INTO DEMO (id, text) VALUES (2, "Second row")');
+			tx.executeSql('DROP TABLE DEMO');
+			tx.executeSql('CREATE TABLE IF NOT EXISTS DEMO (id unique, data)');
+			tx.executeSql('INSERT INTO DEMO (id, data) VALUES (1, "First \"\"row\"\"")');
+			tx.executeSql('INSERT INTO DEMO (id, data) VALUES (2, "Second row")');
 			databaseOutput("Data written to DEMO table.");
 		});
 
@@ -791,12 +815,49 @@
    				var text = "DEMO table: " + len + " rows found.<br>";
 				text = text + "<table border='1'><tr><td>Row</td><td>Data</td></tr>";
    				for (var i=0; i<len; i++){
-      				text = text + "<tr><td>" + i + "</td><td>" + results.rows.item(i).id + ", " + results.rows.item(i).text + "</td></tr>";
+      				text = text + "<tr><td>" + i + "</td><td>" + results.rows.item(i).id + ", " + results.rows.item(i).data + "</td></tr>";
 				}
 				text = text + "</table>";
 				databaseOutput(text);
-   			}, null);
+   			}, function(tx, err) {
+				alert("Error processing SQL: "+err);
+   			});
+	  		tx.executeSql('SELECT ID FROM DEMO', [], function (tx, results) {
+   				var len = results.rows.length;
+   				var text = "DEMO table: " + len + " rows found.<br>";
+				text = text + "<table border='1'><tr><td>Row</td><td>Data</td></tr>";
+   				for (var i=0; i<len; i++){
+      				text = text + "<tr><td>" + i + "</td><td>" + results.rows.item(i).id + "</td></tr>";
+				}
+				text = text + "</table>";
+				databaseOutput(text);
+   			}, function(tx, err) {
+				alert("Error processing SQL: "+err);
+   			});
+		},
+		function() {
+			console.log("Transaction successful.");
+		},
+		function(err) {
+			console.log("Transaction failed: " + err);
 		});
+
+		setTimeout(function() {
+		db.transaction(function (tx) {
+	  		tx.executeSql('SELECT * FROM DEMO WHERE id=2', [], function (tx, results) {
+   				var len = results.rows.length;
+   				var text = "DEMO table: " + len + " rows found.<br>";
+				text = text + "<table border='1'><tr><td>Row</td><td>Data</td></tr>";
+   				for (var i=0; i<len; i++){
+      				text = text + "<tr><td>" + i + "</td><td>" + results.rows.item(i).id + ", " + results.rows.item(i).data + "</td></tr>";
+				}
+				text = text + "</table>";
+				databaseOutput(text);
+   			}, function(tx, err) {
+				alert("Error processing SQL: "+err);
+   			});
+		});}, 5000);
+
 	};
 
 	var databaseOutput = function(s) {
@@ -919,8 +980,8 @@
 	</div>
     <a href="#" class="btn large" onclick="beep();">Beep</a>
     <a href="#" class="btn large" onclick="vibrate();">Vibrate</a>
-    <a href="#" class="btn large" onclick="navigator.notification.alert('You pressed alert.', 'Alert Dialog', 'Continue');">Alert Dialog</a>
-    <a href="#" class="btn large" onclick="alert(navigator.notification.confirm('You pressed confirm.', 'Confirm Dialog', 'Yes,No,Maybe'));">Confirm Dialog</a>
+    <a href="#" class="btn large" onclick="alertDialog('You pressed alert.', 'Alert Dialog', 'Continue');">Alert Dialog</a>
+    <a href="#" class="btn large" onclick="confirmDialog('You pressed confirm.', 'Confirm Dialog', 'Yes,No,Maybe');">Confirm Dialog</a>
     <a href="#" class="btn large" onclick="spinner();">Spinner Dialog</a>
     <a href="#" class="btn large" onclick="progress();">Progress Dialog</a>
 
@@ -979,5 +1040,7 @@
 	</div>
     <a href="#" class="btn large" onclick="callDatabase();">Database</a>
 
+	<br>
+    <a href="#" class="btn large" onclick="device.exitApp();">Exit Application</a>
   </body>
 </html>

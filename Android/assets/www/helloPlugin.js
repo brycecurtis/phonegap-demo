@@ -12,7 +12,7 @@ function HelloPlugin() {
  * @param {Function} errorCallback      The function to call when there is an error. (OPTIONAL)
  */
 HelloPlugin.prototype.hello = function(name, successCallback, errorCallback) {
-    PhoneGap.execAsync(successCallback, errorCallback, "HelloPlugin", "hello", [name]);
+    PhoneGap.exec(successCallback, errorCallback, "HelloPlugin", "hello", [name]);
 };
 
 /**
