@@ -7,6 +7,7 @@
       <link rel="stylesheet" href="master.css" type="text/css" media="screen" title="no title" charset="utf-8">
       <script type="text/javascript" charset="utf-8" src="phonegap.js"></script>
       <script type="text/javascript" charset="utf-8" src="helloPlugin.js"></script>
+      <script type="text/javascript" charset="utf-8" src="childbrowser.js"></script>
       <script type="text/javascript" charset="utf-8">
 
     function roundNumber(num) {
@@ -22,6 +23,7 @@
       	document.getElementById("platform").innerHTML = device.platform;
       	document.getElementById("version").innerHTML = device.version;
       	document.getElementById("uuid").innerHTML = device.uuid;
+      	document.getElementById("name").innerHTML = device.name;
       	document.getElementById("phonegap_version").innerHTML = device.phonegap;
 
         PluginManager.addService("Demo", "com.ibm.swgtc.demo.DemoPlugin");
@@ -363,7 +365,7 @@
 				console.log("Error getting picture: " + e);
 				document.getElementById('camera_status').innerHTML = "Error getting picture.";
       		},
-      		{ quality: 50, destinationType: Camera.DestinationType.FILE_URI});
+      		{ quality: 50, destinationType: navigator.camera.DestinationType.FILE_URI});
     };
 
 	/**
@@ -383,7 +385,7 @@
 				console.log("Error getting picture: " + e);
 				document.getElementById('camera_status').innerHTML = "Error getting picture.";
       		},
-      		{ quality: 50, destinationType: Camera.DestinationType.FILE_URI, sourceType: Camera.PictureSourceType.PHOTOLIBRARY});
+      		{ quality: 50, destinationType: navigator.camera.DestinationType.FILE_URI, sourceType: navigator.camera.PictureSourceType.PHOTOLIBRARY});
     };
 
 	//-------------------------------------------------------------------------
@@ -790,6 +792,13 @@
 			});
 	};
 
+	/**
+	 * Test the ChildBrowser service
+	 */
+	var childBrowserService = function(url) {
+		window.plugins.childBrowser.showWebPage(url);
+	};
+
 	//-------------------------------------------------------------------------
 	// HTML5 Database
 	//-------------------------------------------------------------------------
@@ -912,6 +921,7 @@
 		<tr><td><b>Platform:</b></td><td id="platform">&nbsp;</td></tr>
       	<tr><td><b>Version:</b></td><td id="version">&nbsp;</td></tr>
       	<tr><td><b>UUID:</b></td><td id="uuid">&nbsp;</td></tr>
+      	<tr><td><b>Device:</b></td><td id="name">&nbsp;</td></tr>
       	<tr><td><b>PhoneGap:</b></td><td id="phonegap_version">&nbsp;</td></tr>
 		</table>
 	</div>
@@ -973,6 +983,7 @@
     <a href="sms:5126352414" class="btn large">Send SMS</a>
     <a href="http://www.google.com" class="btn large">Load Web Site</a>
     <a href="http://handle.library.cornell.edu/control/authBasic/authTest/" class="btn large">Basic Auth: test/this</a>
+    <a href="#" class="btn large" onclick="childBrowserService('http://www.google.com');">Load using Child Browser</a>
 
 	<!-- Notifications -->
 	<div id="info">
@@ -1040,7 +1051,10 @@
 	</div>
     <a href="#" class="btn large" onclick="callDatabase();">Database</a>
 
-	<br>
+	<br>&nbsp;
+	<br>&nbsp;
+	<br>&nbsp;
     <a href="#" class="btn large" onclick="device.exitApp();">Exit Application</a>
+
   </body>
 </html>
