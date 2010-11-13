@@ -796,7 +796,15 @@
 	 * Test the ChildBrowser service
 	 */
 	var childBrowserService = function(url) {
-		window.plugins.childBrowser.showWebPage(url);
+		if (!window.plugins.childBrowser) {
+			PhoneGap.includeJavascript("childbrowser.js",
+				function() {
+					window.plugins.childBrowser.showWebPage(url, true);
+				});
+		}
+		else {
+			window.plugins.childBrowser.showWebPage(url, true);
+		}
 	};
 
 	//-------------------------------------------------------------------------
