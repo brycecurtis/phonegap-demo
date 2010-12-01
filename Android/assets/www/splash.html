@@ -1,18 +1,76 @@
 <!DOCTYPE HTML>
 <html>
-  <head>
-    <meta name="viewport" content="width=320; user-scalable=no" />
+<head>
+	<meta name="viewport" content="width=320; user-scalable=no" />
     <meta http-equiv="Content-type" content="text/html; charset=utf-8">
     <title>PhoneGap</title>
-      <link rel="stylesheet" href="master.css" type="text/css" media="screen" title="no title" charset="utf-8">
-      <script type="text/javascript" charset="utf-8">
+    <link rel="stylesheet" href="master.css" type="text/css" media="screen" title="no title" charset="utf-8">
+    <script type="text/javascript" charset="utf-8" src="phonegap.js"></script>
+	<script type="text/javascript" charset="utf-8">
 
+var app = null;
 
-  </script>
-  </head>
-  <body id="stage" class="theme">
-    <h1>PhoneGap Demo</h1>
+/**
+ * Init - wait for PhoneGap ready
+ */
+function init() {
+    document.addEventListener("deviceready", ready, false);
+}
 
+/**
+ * PhoneGap is ready
+ *
+ * Show splash screen for 3 sec, unless "Configure" button is pressed.
+ */
+function ready() {
+	app = new App();
+	setTimeout(loadPage, 3000);
+}
+
+/**
+ * Load next page
+ *
+ * @param config			T=load config, F=load app
+ */
+function loadPage(config) {
+
+	// If "Configure" button pressed
+	if (config) {
+		app.loadUrl("file:///android_asset/www/config.html");
+	}
+
+	// If loading app
+	else {
+
+		// Clear history, so that splash screen won't be in it
+		app.clearHistory();
+
+		// Get saved url
+		var url = localStorage.getItem("url");
+
+		// If URL found, then load it
+		if (url) {
+			var parm = {"loadingDialog": "Wait,Loading Demo..."};
+			app.loadUrl(url, parm);
+		}
+
+		// If no URL, then load config
+		else {
+			var parm = {"loadingDialog": "Wait,Loading Config..."};
+			app.loadUrl("file:///android_asset/www/config.html", parm);
+		}
+	}
+}
+
+	</script>
+</head>
+<body id="stage" onload="init()" class="theme">
     <img src="sandy.jpg"/>
+	<div style="position:absolute;top:0px;left:0px;width:100%;">
+    	<center><h1 style="color:white;">PhoneGap Demo</h1></center>
+	</div>
+    <div style="position:absolute; bottom:20px; right: 20px;";
+    	<input type="button" onclick="loadPage(true);" value="Configure..."/>
+    </div>
   </body>
 </html>

@@ -75,7 +75,10 @@ public class ChildBrowser extends Plugin {
         try {
             Intent intent = null;
             if (usePhoneGap) {
-//make sure no static in DroidGap and other classes!
+            	// This displays a new PhoneGap app.  
+            	// If keepRunning=true (default), then the orig app continues to run in background
+            	// If keepRunning=false, then the orig app is paused by Android
+            	// When BACK is pressed, the orig app has focus.
                 intent = new Intent().setClass(this.ctx, com.phonegap.DroidGap.class);
                 intent.setData(Uri.parse(url)); // This line will be removed in future.
                 intent.putExtra("url", url);
@@ -86,6 +89,7 @@ public class ChildBrowser extends Plugin {
                 // These parameters can be configured if you want to show the loading dialog
                 intent.putExtra("loadingDialog", "Wait,Loading web page...");   // show loading dialog
                 intent.putExtra("hideLoadingDialogOnPageLoad", true);           // hide it once page has completely loaded
+                
             }
             else {
                 intent = new Intent(Intent.ACTION_VIEW);

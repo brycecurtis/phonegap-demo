@@ -1,0 +1,79 @@
+<!DOCTYPE HTML>
+<html>
+  <head>
+    <meta name="viewport" content="width=320; user-scalable=no" />
+    <meta http-equiv="Content-type" content="text/html; charset=utf-8">
+    <title>PhoneGap</title>
+      <link rel="stylesheet" href="master.css" type="text/css" media="screen" title="no title" charset="utf-8">
+      <script type="text/javascript" charset="utf-8" src="phonegap.js"></script>
+      <script type="text/javascript" charset="utf-8">
+
+var app = null;
+var url = null;
+
+/**
+ * Init - wait for PhoneGap ready
+ */
+function init() {
+    document.addEventListener("deviceready", ready, false);
+}
+
+/**
+ * PhoneGap is ready
+ */
+function ready() {
+	app = new App();
+
+	var url = localStorage.getItem("url");
+	console.log("URL=<"+url+">");
+	if (!url) {
+		//url = "http://192.168.0.199/abc";
+		url = "file:///android_asset/www/index.html";
+	}
+	document.getElementById("url").value = url;
+};
+
+/**
+ * Save configuration and display new URL
+ */
+function save() {
+
+	// Get the URL from text field and save
+	var url = document.getElementById("url").value;
+	localStorage.setItem("url", url);
+
+	// Clear history, so that splash screen won't be in it
+	app.clearHistory();
+
+	// Load URL
+	var parm = {"loadingDialog": "Wait,Loading Demo..."};
+	app.loadUrl(url, parm);
+}
+
+/**
+ * Cancel configuration and redisplay splash screen
+ */
+function cancel() {
+	app.loadUrl("file:///android_asset/www/splash.html");
+}
+
+	</script>
+</head>
+<body onload="init();" id="stage" class="theme">
+    <img src="sandy.jpg"/>
+	<div style="position:absolute;top:0px;left:0px;width:100%;">
+    	<center><h1 style="color:white;">PhoneGap Demo</h1></center>
+	</div>
+	<div id="info" style="position:absolute;top:40px;">
+		<center><h2>Configuration</h2></center>
+		This application needs to be configured.<br> <br>
+		Please specify the application URL:<br> <br>
+		<b>Note:</b> For this demo to work correctly, the url needs to be "file:///android_asset/www/index.html" <br> <br>
+		<input style="width:90%;" id="url" type="text" value="" /><br>
+		<center>
+   			<input style="width:25%;" type="button" onclick="save();" value="Save"/>
+   			<input style="width:25%;" type="button" onclick="cancel();" value="Cancel"/>
+		</center>
+	</div>
+  </body>
+</html>

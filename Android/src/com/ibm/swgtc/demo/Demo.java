@@ -1,17 +1,11 @@
 
 package com.ibm.swgtc.demo;
 
-import android.app.Activity;
 import android.os.Bundle;
 import com.phonegap.*;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.view.ContextMenu;
-import android.view.ContextMenu.ContextMenuInfo;
-import android.view.View;
+import android.webkit.WebView;
 
-public class Demo extends DroidGap
-{
+public class Demo extends DroidGap {
 
     /**
      * Constructor
@@ -23,14 +17,47 @@ public class Demo extends DroidGap
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        this.setProperty("loadingDialog", "Wait,Loading Demo...");
-        //super.setProperty("hideLoadingDialogOnPageLoad", true);
-        //this.setProperty("splashscreen", R.drawable.sandy);
-        this.setProperty("errorUrl", "file:///android_asset/www/error.html");
-        this.setProperty("loadUrlTimeoutValue", 5000);
-        this.init();
-        //this.appView.clearCache(true);
-        this.loadSplashScreen("file:///android_asset/www/splash.html");
-        this.loadUrl("file:///android_asset/www/index.html", 3000);
+
+    	// Init webview
+    	this.init();
+    	
+    	// Set our own WebViewClient so we can see webview events
+    	this.setWebViewClient(this.appView, new DemoViewClient(this));
+    	
+    	// Set error url that gets called if there is an error loading any url page
+    	this.setStringProperty("errorUrl", "file:///android_asset/www/config.html?error=true");
+    	
+    	// Clear our cache (this is used mainly during development - comment out for production)
+    	this.clearCache();
+    	
+    	// Load the first page of our app
+    	// This will show a splash screen.  
+    	// Splash.html loads either 
+    	//		1. config.html if a url is not set
+    	//		2. loads the url specified by config.
+    	// For this demo to work correctly, the url in config should be:
+    	//		file:///android_asset/www/index.html
+    	this.loadUrl("file:///android_asset/www/splash.html");
+    }
+    
+    /**
+     * This class can be used to override the GapViewClient and receive notification of webview events.
+     */
+    public class DemoViewClient extends GapViewClient {
+
+		public DemoViewClient(DroidGap arg0) {
+			super(arg0);
+		}
+    	
+        public boolean shouldOverrideUrlLoading(WebView view, String url) {
+        	System.out.println("DEMO.shouldOverrideUrlLoading("+url+")");
+        	return super.shouldOverrideUrlLoading(view, url);
+        }
+        
+        @Override
+        public void onReceivedError(WebView view, int errorCode, String description, String failingUrl) {
+        	System.out.println("DEMO.onReceivedError: Error code="+errorCode+" Description="+description+" URL="+failingUrl);
+        	super.onReceivedError(view, errorCode, description, failingUrl);
+        }
     }
 }

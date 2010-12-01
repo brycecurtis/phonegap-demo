@@ -7,7 +7,6 @@
       <link rel="stylesheet" href="master.css" type="text/css" media="screen" title="no title" charset="utf-8">
       <script type="text/javascript" charset="utf-8" src="phonegap.js"></script>
       <script type="text/javascript" charset="utf-8" src="helloPlugin.js"></script>
-      <script type="text/javascript" charset="utf-8" src="childbrowser.js"></script>
       <script type="text/javascript" charset="utf-8">
 
     function roundNumber(num) {
@@ -386,6 +385,41 @@
 				document.getElementById('camera_status').innerHTML = "Error getting picture.";
       		},
       		{ quality: 50, destinationType: navigator.camera.DestinationType.FILE_URI, sourceType: navigator.camera.PictureSourceType.PHOTOLIBRARY});
+    };
+
+	/**
+	 * Get picture and upload as base64 image
+	 */
+    function getPictureUpload() {
+      	navigator.camera.getPicture(
+    		function(data) {
+      			var img = document.getElementById('camera_image');
+      			img.style.visibility = "visible";
+				img.style.display = "block";
+      			img.src = "data:image/jpeg;base64," + data;
+				//img.src = data;
+				document.getElementById('camera_status').innerHTML = "Success";
+
+				try {
+			    	var ajaxReq = new XMLHttpRequest();
+					ajaxReq.open("POST", "http://192.168.0.199/mobile/apps/demo/demo.php", true);
+					ajaxReq.setRequestHeader('Content-Type','application/x-www-form-urlencoded');
+    				ajaxReq.onreadystatechange = function(){
+        				if(ajaxReq.readyState == 4){
+            				console.log("POST XHR status="+ajaxReq.status+": "+ajaxReq.responseText);
+						}
+					};
+					ajaxReq.send("picture="+data);
+  				}
+  				catch (ex) {
+					console.log("Error: " + ex);
+  				}
+   			},
+      		function(e) {
+				console.log("Error getting picture: " + e);
+				document.getElementById('camera_status').innerHTML = "Error getting picture.";
+      		},
+      		{ quality: 50, destinationType: navigator.camera.DestinationType.DATA_URL, sourceType: navigator.camera.PictureSourceType.PHOTOLIBRARY});
     };
 
 	//-------------------------------------------------------------------------
@@ -799,7 +833,7 @@
 		if (!window.plugins.childBrowser) {
 			PhoneGap.includeJavascript("childbrowser.js",
 				function() {
-					window.plugins.childBrowser.showWebPage(url, true);
+					window.plugins.childBrowser.showWebPage(url, false);
 				});
 		}
 		else {
@@ -851,9 +885,6 @@
    			}, function(tx, err) {
 				alert("Error processing SQL: "+err);
    			});
-		},
-		function() {
-			console.log("Transaction successful.");
 		},
 		function(err) {
 			console.log("Transaction failed: " + err);
@@ -1008,10 +1039,11 @@
 	<div id="info">
 		<h2>Camera</h2>
 		<b>Status:</b> <span id="camera_status"></span><br>
-  		<img style="width:60px;height:60px;visibility:hidden;display:none;" id="camera_image" src="" />
+  		<img style="width:120px;height:120px;visibility:hidden;display:none;" id="camera_image" src="" />
 	</div>
     <a href="#" class="btn large" onclick="getPicture();">Take Picture</a>
     <a href="#" class="btn large" onclick="getImage();">Select Image from Library</a>
+    <a href="#" class="btn large" onclick="getPictureUpload();">Take Picture and Upload</a>
 
 	<!-- Contacts -->
 	<div id="info">
@@ -1059,6 +1091,21 @@
 	</div>
     <a href="#" class="btn large" onclick="callDatabase();">Database</a>
 
+	<!-- HTML5 Local Storage -->
+	<div id="info">
+  		<h2>Local Storage</h2>
+  		You have run this app <span id="count">an untold number of</span> time(s).
+	</div>
+	<script>
+  	if (!localStorage.pageLoadCount) {
+   		localStorage.pageLoadCount = 0;
+  	}
+  	localStorage.pageLoadCount = parseInt(localStorage.pageLoadCount) + 1;
+  	document.getElementById('count').textContent = localStorage.pageLoadCount;
+	</script>
+
+	<br>
+	Just an input field: <input type="text" value="" />
 	<br>&nbsp;
 	<br>&nbsp;
 	<br>&nbsp;
