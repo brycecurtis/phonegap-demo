@@ -15,7 +15,7 @@
     border-radius: 5px;
     clear:both;
     margin:15px 6px 0;
-    width:295px;
+    width:100%;
     padding:4px 0px 2px 10px;
   }
   
@@ -90,7 +90,7 @@
     margin:3px 0px 3px 5px;
   }
   #stage.theme a.btn.large{
-    width:308px;
+    width:100%;
     padding:1.2em 0;
   }
 

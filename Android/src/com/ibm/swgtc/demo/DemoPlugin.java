@@ -4,10 +4,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import com.phonegap.api.Plugin;
 import com.phonegap.api.PluginResult;
-import android.content.Context;
-import android.content.Intent;
-import android.webkit.WebView;
-import com.phonegap.*;
 
 /**
  * This class provides a service.

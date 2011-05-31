@@ -22,22 +22,17 @@ public class Demo extends DroidGap {
     	this.init();
     	
     	// Set our own WebViewClient so we can see webview events
-    	this.setWebViewClient(this.appView, new DemoViewClient(this));
+    	//this.setWebViewClient(this.appView, new DemoViewClient(this));
     	
     	// Set error url that gets called if there is an error loading any url page
-    	this.setStringProperty("errorUrl", "file:///android_asset/www/config.html?error=true");
+    	//this.setStringProperty("errorUrl", "file:///android_asset/www/config.html?error=true");
     	
     	// Clear our cache (this is used mainly during development - comment out for production)
     	this.clearCache();
-    	
-    	// Load the first page of our app
-    	// This will show a splash screen.  
-    	// Splash.html loads either 
-    	//		1. config.html if a url is not set
-    	//		2. loads the url specified by config.
-    	// For this demo to work correctly, the url in config should be:
-    	//		file:///android_asset/www/index.html
-    	this.loadUrl("file:///android_asset/www/splash.html");
+    	// Show splashscreen
+        this.setIntegerProperty("splashscreen", R.drawable.sandy);
+        // Load our app
+    	this.loadUrl("file:///android_asset/www/index.html", 3000);
     }
     
     /**

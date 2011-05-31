@@ -66,6 +66,9 @@ public class ChildBrowser extends Plugin {
 
     /**
      * Display a new browser with the specified URL.
+     * 
+     * NOTE: If usePhoneGap is set, only trusted PhoneGap URLs should be loaded,
+     *       since any PhoneGap API can be called by the loaded HTML page.
      *
      * @param url           The url to load.
      * @param usePhoneGap   Load url in PhoneGap webview
@@ -75,10 +78,11 @@ public class ChildBrowser extends Plugin {
         try {
             Intent intent = null;
             if (usePhoneGap) {
-            	// This displays a new PhoneGap app.  
-            	// If keepRunning=true (default), then the orig app continues to run in background
-            	// If keepRunning=false, then the orig app is paused by Android
-            	// When BACK is pressed, the orig app has focus.
+            	// Loads and displays a new PhoneGap app on top of current PhoneGap app.
+            	// For the currently running PhoneGap app:
+            	// 		If keepRunning=true (default), then the current app continues to run in background
+            	// 		If keepRunning=false, then the current app is paused by Android
+            	// When BACK is pressed, the current app has focus.
                 intent = new Intent().setClass(this.ctx, com.phonegap.DroidGap.class);
                 intent.setData(Uri.parse(url)); // This line will be removed in future.
                 intent.putExtra("url", url);

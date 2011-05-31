@@ -18,4 +18,6 @@ HelloPlugin.prototype.hello = function(name, successCallback, errorCallback) {
 /**
  * Register service.
  */
-PluginManager.addService("HelloPlugin", "com.ibm.swgtc.plugins.HelloPlugin");
+PhoneGap.addConstructor(function() {
+	PluginManager.addService("HelloPlugin", "com.ibm.swgtc.plugins.HelloPlugin");
+});
